@@ -5,10 +5,9 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import entryRoutes from "./routes/entryRoutes.js"
 import categoryRoutes from "./routes/categoryRoutes.js"
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './config/prisma.js';
 
 const app = express();
-const prisma = new PrismaClient();
 
 console.log("Open to requests from", process.env.CORS_ORIGIN)
 
