@@ -22,6 +22,8 @@ model Category {
   icon           String
   titleStyle     Title
   recordDateTime Boolean     @default(true)
+  allowEdit      Boolean     @default(true)
+  allowDelete    Boolean     @default(true)
   entries        Entry[]
 }
 

@@ -44,3 +44,61 @@ export const getEntries = async (req, res) => {
       res.status(500).json({ error: "Server error while fetching entries" });
     }
 };
+
+const findEntryWithCategory = (id) =>
+  prisma.entry.findUnique({
+    where: { id },
+    include: { category: true },
+  });
+
+export const updateEntry = async (req, res) => {
+    try {
+      const id = parseInt(req.params.id)
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid entry id" })
+      }
+      const existing = await findEntryWithCategory(id)
+      if (!existing) {
+        return res.status(404).json({ message: "Entry not found" })
+      }
+      if (existing.category && !existing.category.allowEdit) {
+        return res.status(403).json({ message: "Entries in this category cannot be edited" })
+      }
+      const { title, content } = req.body
+      if (typeof content !== "string" || !content.trim()) {
+        return res.status(400).json({ message: "Content cannot be empty" })
+      }
+      const entry = await prisma.entry.update({
+        where: { id },
+        data: {
+          content,
+          ...(title !== undefined && { title }),
+        },
+      })
+      return res.status(200).json(entry)
+    } catch (error) {
+      console.error("Error while updating entry:", error);
+      res.status(500).json({ error: "Server error while updating entry" });
+    }
+};
+
+export const deleteEntry = async (req, res) => {
+    try {
+      const id = parseInt(req.params.id)
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid entry id" })
+      }
+      const existing = await findEntryWithCategory(id)
+      if (!existing) {
+        return res.status(404).json({ message: "Entry not found" })
+      }
+      if (existing.category && !existing.category.allowDelete) {
+        return res.status(403).json({ message: "Entries in this category cannot be deleted" })
+      }
+      const entry = await prisma.entry.delete({ where: { id } })
+      return res.status(200).json(entry)
+    } catch (error) {
+      console.error("Error while deleting entry:", error);
+      res.status(500).json({ error: "Server error while deleting entry" });
+    }
+};

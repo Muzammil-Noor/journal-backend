@@ -1,8 +1,18 @@
 import { prisma } from "../config/prisma.js";
 
+const CATEGORY_FIELDS = ["name", "icon", "titleStyle", "recordDateTime", "allowEdit", "allowDelete"];
+
+const pickCategoryFields = (body = {}) => {
+    const data = {};
+    for (const key of CATEGORY_FIELDS) {
+        if (body[key] !== undefined) data[key] = body[key];
+    }
+    return data;
+};
+
 export const createCategory = async (req, res) => {
     try {
-        await prisma.category.create({data: req.body})
+        await prisma.category.create({data: pickCategoryFields(req.body)})
         return res.status(200).json({message:"Success!"})
     } catch (error) {
         console.error("Error while creating category:", error);
@@ -24,7 +34,7 @@ export const editCategory = async (req, res) => {
     try {
         const {id} = req.params
         await prisma.category.update({
-            data: req.body,
+            data: pickCategoryFields(req.body),
             where: {id: parseInt(id)}
         })
         return res.status(200).json({message:"Success!"})
