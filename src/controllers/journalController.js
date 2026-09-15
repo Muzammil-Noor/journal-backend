@@ -45,19 +45,16 @@ export const getEntries = async (req, res) => {
     }
 };
 
-const findEntryWithCategory = (id) =>
-  prisma.entry.findUnique({
-    where: { id },
-    include: { category: true },
-  });
-
 export const updateEntry = async (req, res) => {
     try {
       const id = parseInt(req.params.id)
       if (Number.isNaN(id)) {
         return res.status(400).json({ message: "Invalid entry id" })
       }
-      const existing = await findEntryWithCategory(id)
+      const existing = await prisma.entry.findUnique({
+        where: { id },
+        include: { category: true },
+      });
       if (!existing) {
         return res.status(404).json({ message: "Entry not found" })
       }
